@@ -38,12 +38,12 @@ class MOSS
 		$this->call('updateStatus', $status);
 	}
 
-	public function invoke($id, $room, $comand, $message="")
+	public function invoke($id, $room, $command, $message="")
 	{
 		$this->call('invoke', array($id, $room, $command, json_encode($message)));
 	}
 
-	public function invokeOnRoom($room, $comand, $message="")
+	public function invokeOnRoom($room, $command, $message="")
 	{
 		$this->call('invokeOnRoom', array($room, $command, json_encode($message)));
 	}
