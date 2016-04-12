@@ -22,9 +22,9 @@ class MOSS
 		if($this->connected)
 			return true;
 		
-		if($id == 0) $id = $this->id;
-		if($room == "") $room = $this->room;
-		if($status == 0) $status = $this->status;
+		if($id != 0) $this->id = $id;
+		if($room != "") $this->room = $room;
+		if($status != 0) $this->status = $status;
 		
 		$this->socket = fsockopen($this->host, $this->port, $errnum, $errstr, 5);
 		$this->call('connect', array($this->id, $this->room, $this->status));
@@ -56,6 +56,16 @@ class MOSS
 		
 		$this->call('disconnect');
 		fclose($this->socket);
+	}
+	
+	public function resetHost($host = null, $port = 0, $id = 0)
+	{
+		if(isset($host)) $this->host = $host;
+		if($port > 0) $this->port = $port;
+		if($id != 0) $this->id = $id;
+		
+		$this->disconnect();
+		$this->connect();
 	}
 
 	public function call($command, $message="")
