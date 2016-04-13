@@ -5,6 +5,16 @@ class MOSS
 	private $host, $port, $id, $room, $status;
 	public $connected;
 	
+	public function __get($name) {
+		switch($name) {
+			case 'host': return $this->host;
+			case 'port': return $this->host;
+			case 'id': return $this->id;
+			case 'room': return $this->room;
+			case 'status': return $this->status;
+		}
+	}
+	
 	function __construct($host, $port = 30480, $id = 0, $room = "", $status = 0)
 	{
 		define("DELIMITER", "&!");
@@ -34,7 +44,7 @@ class MOSS
 		return $this->connected;
 	}
 	
-	private function readResponse($waitFor = "MOSS")
+	public function readResponse($waitFor = "MOSS")
 	{
 		$result = $c = "";
 		while(($c = fread($this->socket, 1)) !== false)
@@ -45,7 +55,6 @@ class MOSS
 			$result .= $c;
 		}
 		preg_match('/#MOSS#<!(.+)!>#<!(.+)?!>#<!(.+)?!>#<!(.+)?!>#/', $result, $matches);
-		
 		return strpos($result, $waitFor) === false ? $this->readResponse($waitFor) : $matches;
 	}
 	
@@ -55,6 +64,8 @@ class MOSS
 			return;
 		
 		$this->call('disconnect');
+		$this->readResponse("disconnect");
+		$this->connected = false;
 		fclose($this->socket);
 	}
 	
@@ -75,6 +86,13 @@ class MOSS
 			fwrite($this->socket, $message);
 			fflush($this->socket);
 		}
+	}
+
+	public function log($message)
+	{
+		$this->call('log', (is_array($message) ? json_encode($message) : $message));
+		$result = $this->readResponse("log");
+		return $result[3] == "ok";
 	}
 
 	public function updateStatus($status)
